@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2025-01-27" view-index="0" gantt-divider-location="439" resource-divider-location="300" version="3.3.3312" locale="it_CH">
+    <description/>
+    <view zooming-state="default:4" id="gantt-chart">
+        <field id="tpd3" name="Name" width="250" order="0"/>
+        <field id="tpd4" name="Begin date" width="94" order="1"/>
+        <field id="tpd5" name="End date" width="94" order="2"/>
+        <field id="tpd15" name="Notes" width="20" order="3"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+        <option id="color.recent"><![CDATA[#ff9500 #ff0000 #16208e #3c903c #000000]]></option>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="210" order="0"/>
+        <field id="1" name="Default role" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" uid="3d37238b9dfc414da37cefc12bc864f3" name="Analisi" meeting="false" start="2025-01-27" duration="2" complete="0" expand="true">
+            <task id="18" uid="dd80e1ea2c044a068c3f2bd7c11484bb" name="Scelta linguaggio" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="16" uid="d7bb900a6fb24f35a0fd8204f78cb281" name="Abstract" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="1" uid="5c153504badf4518846e6cc1c6abcb3f" name="Use Case" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="2" uid="ad83df30f29c4688aa4629fb933598bb" name="Creazione cartelle" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="3" uid="779260d6fda44937b8d1f4a0ad6c20d2" name="Creazione repo Git" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="4" uid="10f2e550044547c4b557a7a4831d2026" name="Creazione QdC" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="6" uid="25d762a3846a48dcbefe1ab8d60c54da" name="Configurazione Jira" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
+            <task id="5" uid="b9ad8b0314674d5a97c17762ff14bf22" name="Pianificazione" meeting="false" start="2025-01-28" duration="1" complete="0" expand="true"/>
+        </task>
+        <task id="9" uid="1e5e33f61d9c4028b5e4922b71a8442f" name="Progettazione" meeting="false" start="2025-01-28" duration="3" complete="0" expand="true">
+            <task id="10" uid="11ab562c72e84089849efc8e5efc93d0" name="Schema E/R" meeting="false" start="2025-01-28" duration="1" complete="0" expand="true"/>
+            <task id="22" uid="9745b719115a49d8bd49eded5fcb10a5" name="Design delle interfaccie" color="#8cb6ce" meeting="false" start="2025-01-30" duration="1" complete="0" expand="true"/>
+        </task>
+        <task id="14" uid="5a5fc6ecb8564b6dbf98998ab66539f3" name="Implementazione" meeting="false" start="2025-01-31" duration="41" complete="0" expand="true">
+            <task id="15" uid="4ee8fd0f43ce40359beedb462c12d985" name="Setup progetto Vaadin + db" meeting="false" start="2025-01-31" duration="1" complete="0" expand="true"/>
+            <task id="17" uid="675ebe912b134b5b8f39e391e92d6463" name="finestra login + register" meeting="false" start="2025-02-03" duration="2" complete="0" expand="true"/>
+            <task id="19" uid="c0a38c0ad8b246ebb7918ca603945895" name="Creazione Homepage" meeting="false" start="2025-02-06" duration="1" complete="0" expand="true"/>
+            <task id="21" uid="4b8de52e5fa6417f8918d71bfc33c3dc" name="Pagina creazione gita" color="#8cb6ce" meeting="false" start="2025-02-06" duration="2" complete="0" expand="true"/>
+            <task id="24" uid="cc228a327e5d4167b1f0004b447d82d3" name="Gestione accessi (admin o utente)" color="#8cb6ce" meeting="false" start="2025-02-10" duration="2" complete="0" expand="true"/>
+            <task id="26" uid="96cb5e73319844f8928fc634815698c8" name="Funzione caricamento foto" color="#8cb6ce" meeting="false" start="2025-02-13" duration="2" complete="0" expand="true"/>
+            <task id="27" uid="8ba27b1ecf934a23b20cad9dfb754b3f" name="gestione partecipanti" color="#000000" meeting="false" start="2025-02-17" duration="10" complete="0" expand="true">
+                <task id="31" uid="c0d7967e95bb49a8819389b97e4cd12c" name="pagina richieste" meeting="false" start="2025-02-17" duration="1" complete="0" expand="true"/>
+                <task id="34" uid="1591e208c3604754b5da7ef0bc70c1fc" name="Azioni richieste" color="#8cb6ce" meeting="false" start="2025-02-18" duration="1" complete="0" expand="true"/>
+                <task id="35" uid="d323107e8fd94e5392737a88d0d1eb83" name="Creazione template fattura" color="#8cb6ce" meeting="false" start="2025-02-20" duration="1" complete="0" expand="true"/>
+                <task id="33" uid="8f20a93595ec473ea0b19f3d039acc38" name="Invio email + fattura" color="#8cb6ce" meeting="false" start="2025-02-21" duration="3" complete="0" expand="true"/>
+                <task id="36" uid="53256491b72341fd96714679b1d7eee4" name="Gestione rimborso" color="#8cb6ce" meeting="false" start="2025-02-27" duration="2" complete="0" expand="true"/>
+            </task>
+            <task id="28" uid="61875b37415348aaa202ed0e48823dad" name="Vacanze Carnevale" color="#ff9500" meeting="false" start="2025-03-03" duration="5" complete="0" expand="true"/>
+            <task id="41" uid="f8b69afc86a5404daaee317ba77754b6" name="Creazione Storico" color="#8cb6ce" meeting="false" start="2025-03-10" duration="2" complete="0" expand="true"/>
+            <task id="30" uid="80a9fab30cf646e4b8bcc6bc8307f553" name="Creazione personalizzazione profilo" color="#8cb6ce" meeting="false" start="2025-03-14" duration="3" complete="0" expand="true"/>
+            <task id="37" uid="8b665770b3514dc484f93b66ff2bab18" name="Download calendario .ics" color="#8cb6ce" meeting="false" start="2025-03-20" duration="2" complete="0" expand="true"/>
+            <task id="39" uid="5aae69c378224e0e8935202ff08b91c2" name="Mail di avviso creazione" color="#8cb6ce" meeting="false" start="2025-03-24" duration="1" complete="0" expand="true"/>
+            <task id="40" uid="7f09937f86e243c68ca46aaf3f000ec0" name="Pagina proponimento gita + accettazione" color="#8cb6ce" meeting="false" start="2025-03-25" duration="4" complete="0" expand="true"/>
+        </task>
+        <task id="12" uid="28783e77d10c44c8b98699046573385a" name="Problemi" color="#ff0000" meeting="false" start="2025-03-31" duration="5" complete="0" expand="true"/>
+        <task id="38" uid="6c2dd8aba5c84a75982f3ec71b949555" name="Diario" color="#3c903c" meeting="false" start="2025-01-27" duration="50" complete="0" expand="true"/>
+        <task id="13" uid="145a2a47e281489caa2f53efcc84b8b0" name="Documentazione" color="#16208e" meeting="false" start="2025-01-27" duration="50" complete="0" expand="true"/>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
