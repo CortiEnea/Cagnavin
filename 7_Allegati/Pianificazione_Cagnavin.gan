@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2025-01-27" view-index="0" gantt-divider-location="439" resource-divider-location="300" version="3.3.3312" locale="it_CH">
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2025-02-17" view-index="0" gantt-divider-location="409" resource-divider-location="300" version="3.3.3312" locale="it_IT">
     <description/>
     <view zooming-state="default:4" id="gantt-chart">
-        <field id="tpd3" name="Name" width="250" order="0"/>
-        <field id="tpd4" name="Begin date" width="94" order="1"/>
-        <field id="tpd5" name="End date" width="94" order="2"/>
-        <field id="tpd15" name="Notes" width="20" order="3"/>
+        <field id="tpd3" name="Nome" width="223" order="0"/>
+        <field id="tpd4" name="Data d'inizio" width="85" order="1"/>
+        <field id="tpd5" name="Data di fine" width="85" order="2"/>
+        <field id="tpd15" name="Note" width="20" order="3"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="filter.dueTodayTasks" value="false"/>
         <option id="filter.overdueTasks" value="false"/>
@@ -12,8 +12,8 @@
         <option id="color.recent"><![CDATA[#ff9500 #ff0000 #16208e #3c903c #000000]]></option>
     </view>
     <view id="resource-table">
-        <field id="0" name="Name" width="210" order="0"/>
-        <field id="1" name="Default role" width="86" order="1"/>
+        <field id="0" name="Nome" width="210" order="0"/>
+        <field id="1" name="Ruolo predefinito" width="86" order="1"/>
     </view>
     <!-- -->
     <calendars>
@@ -51,7 +51,7 @@
         </task>
         <task id="9" uid="1e5e33f61d9c4028b5e4922b71a8442f" name="Progettazione" meeting="false" start="2025-01-28" duration="3" complete="0" expand="true">
             <task id="10" uid="11ab562c72e84089849efc8e5efc93d0" name="Schema E/R" meeting="false" start="2025-01-28" duration="1" complete="0" expand="true"/>
-            <task id="22" uid="9745b719115a49d8bd49eded5fcb10a5" name="Design delle interfaccie" color="#8cb6ce" meeting="false" start="2025-01-30" duration="1" complete="0" expand="true"/>
+            <task id="22" uid="9745b719115a49d8bd49eded5fcb10a5" name="Design delle interfacce" color="#8cb6ce" meeting="false" start="2025-01-30" duration="1" complete="0" expand="true"/>
         </task>
         <task id="14" uid="5a5fc6ecb8564b6dbf98998ab66539f3" name="Implementazione" meeting="false" start="2025-01-31" duration="41" complete="0" expand="true">
             <task id="15" uid="4ee8fd0f43ce40359beedb462c12d985" name="Setup progetto Vaadin + db" meeting="false" start="2025-01-31" duration="1" complete="0" expand="true"/>
@@ -74,7 +74,7 @@
             <task id="39" uid="5aae69c378224e0e8935202ff08b91c2" name="Mail di avviso creazione" color="#8cb6ce" meeting="false" start="2025-03-24" duration="1" complete="0" expand="true"/>
             <task id="40" uid="7f09937f86e243c68ca46aaf3f000ec0" name="Pagina proponimento gita + accettazione" color="#8cb6ce" meeting="false" start="2025-03-25" duration="4" complete="0" expand="true"/>
         </task>
-        <task id="12" uid="28783e77d10c44c8b98699046573385a" name="Problemi" color="#ff0000" meeting="false" start="2025-03-31" duration="5" complete="0" expand="true"/>
+        <task id="12" uid="28783e77d10c44c8b98699046573385a" name="Rischio" color="#ff0000" meeting="false" start="2025-03-31" duration="5" complete="0" expand="true"/>
         <task id="38" uid="6c2dd8aba5c84a75982f3ec71b949555" name="Diario" color="#3c903c" meeting="false" start="2025-01-27" duration="50" complete="0" expand="true"/>
         <task id="13" uid="145a2a47e281489caa2f53efcc84b8b0" name="Documentazione" color="#16208e" meeting="false" start="2025-01-27" duration="50" complete="0" expand="true"/>
     </tasks>
