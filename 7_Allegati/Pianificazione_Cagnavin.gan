@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2025-02-17" view-index="0" gantt-divider-location="409" resource-divider-location="300" version="3.3.3312" locale="it_IT">
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2025-01-27" view-index="0" gantt-divider-location="379" resource-divider-location="300" version="3.3.3312" locale="it_IT">
     <description/>
-    <view zooming-state="default:4" id="gantt-chart">
-        <field id="tpd3" name="Nome" width="223" order="0"/>
-        <field id="tpd4" name="Data d'inizio" width="85" order="1"/>
-        <field id="tpd5" name="Data di fine" width="85" order="2"/>
+    <view zooming-state="default:5" id="gantt-chart">
+        <field id="tpd3" name="Nome" width="214" order="0"/>
+        <field id="tpd4" name="Data d'inizio" width="82" order="1"/>
+        <field id="tpd5" name="Data di fine" width="82" order="2"/>
         <field id="tpd15" name="Note" width="20" order="3"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="filter.dueTodayTasks" value="false"/>
@@ -39,7 +39,7 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" uid="3d37238b9dfc414da37cefc12bc864f3" name="Analisi" meeting="false" start="2025-01-27" duration="2" complete="0" expand="true">
+        <task id="0" uid="3d37238b9dfc414da37cefc12bc864f3" name="Analisi" meeting="false" start="2025-01-27" duration="2" complete="0" expand="false">
             <task id="18" uid="dd80e1ea2c044a068c3f2bd7c11484bb" name="Scelta linguaggio" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
             <task id="16" uid="d7bb900a6fb24f35a0fd8204f78cb281" name="Abstract" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
             <task id="1" uid="5c153504badf4518846e6cc1c6abcb3f" name="Use Case" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
@@ -71,8 +71,8 @@
             <task id="41" uid="f8b69afc86a5404daaee317ba77754b6" name="Creazione Storico" color="#8cb6ce" meeting="false" start="2025-03-10" duration="2" complete="0" expand="true"/>
             <task id="30" uid="80a9fab30cf646e4b8bcc6bc8307f553" name="Creazione personalizzazione profilo" color="#8cb6ce" meeting="false" start="2025-03-14" duration="3" complete="0" expand="true"/>
             <task id="37" uid="8b665770b3514dc484f93b66ff2bab18" name="Download calendario .ics" color="#8cb6ce" meeting="false" start="2025-03-20" duration="2" complete="0" expand="true"/>
-            <task id="39" uid="5aae69c378224e0e8935202ff08b91c2" name="Mail di avviso creazione" color="#8cb6ce" meeting="false" start="2025-03-24" duration="1" complete="0" expand="true"/>
-            <task id="40" uid="7f09937f86e243c68ca46aaf3f000ec0" name="Pagina proponimento gita + accettazione" color="#8cb6ce" meeting="false" start="2025-03-25" duration="4" complete="0" expand="true"/>
+            <task id="39" uid="5aae69c378224e0e8935202ff08b91c2" name="Mail di avviso creazione" color="#8cb6ce" meeting="false" start="2025-03-21" duration="1" complete="0" expand="true"/>
+            <task id="40" uid="7f09937f86e243c68ca46aaf3f000ec0" name="Gita di Classe" color="#ff9500" meeting="false" start="2025-03-24" duration="5" complete="0" expand="true"/>
         </task>
         <task id="12" uid="28783e77d10c44c8b98699046573385a" name="Rischio" color="#ff0000" meeting="false" start="2025-03-31" duration="5" complete="0" expand="true"/>
         <task id="38" uid="6c2dd8aba5c84a75982f3ec71b949555" name="Diario" color="#3c903c" meeting="false" start="2025-01-27" duration="50" complete="0" expand="true"/>
