@@ -39,7 +39,7 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" uid="3d37238b9dfc414da37cefc12bc864f3" name="Analisi" meeting="false" start="2025-01-27" duration="2" complete="0" expand="false">
+        <task id="0" uid="3d37238b9dfc414da37cefc12bc864f3" name="Analisi" meeting="false" start="2025-01-27" duration="2" complete="0" expand="true">
             <task id="18" uid="dd80e1ea2c044a068c3f2bd7c11484bb" name="Scelta linguaggio" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
             <task id="16" uid="d7bb900a6fb24f35a0fd8204f78cb281" name="Abstract" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
             <task id="1" uid="5c153504badf4518846e6cc1c6abcb3f" name="Use Case" meeting="false" start="2025-01-27" duration="1" complete="0" expand="true"/>
