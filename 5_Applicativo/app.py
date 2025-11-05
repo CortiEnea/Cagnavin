@@ -20,10 +20,16 @@ SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
 
 # Inizializza Supabase client
 try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except:
+    if SUPABASE_URL and SUPABASE_KEY:
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print(f"✅ Supabase connesso: {SUPABASE_URL}")
+    else:
+        supabase = None
+        print("⚠️ Warning: SUPABASE_URL o SUPABASE_KEY non configurati")
+except Exception as e:
     supabase = None
-    print("Warning: Supabase non configurato. Assicurati di impostare SUPABASE_URL e SUPABASE_KEY")
+    print(f"❌ Errore connessione Supabase: {e}")
+    print("⚠️ Assicurati di impostare SUPABASE_URL e SUPABASE_KEY")
 
 # Configurazione upload
 UPLOAD_FOLDER = 'static/images/uploads'
@@ -58,7 +64,13 @@ def admin_required(f):
 # Routes
 @app.route('/')
 def home():
-    return render_template('home.html', user=session.get('username'))
+    try:
+        return render_template('home.html', user=session.get('username'))
+    except Exception as e:
+        print(f"❌ Errore home: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"Errore interno: {str(e)}", 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -69,22 +81,38 @@ def login():
         if not username or not password:
             return render_template('login.html', error='Inserisci username e password')
         
+        if not supabase:
+            return render_template('login.html', error='Errore di configurazione. Contatta l\'amministratore.')
+        
         try:
             result = supabase.table('users').select('*').eq('username', username).execute()
+            
             if result.data and len(result.data) > 0:
                 user = result.data[0]
-                if check_password_hash(user['password'], password):
+                user_password_hash = user.get('password', '')
+                
+                if not user_password_hash:
+                    print(f"⚠️ Utente {username} senza password hash")
+                    return render_template('login.html', error='Errore nel database. Contatta l\'amministratore.')
+                
+                # Verifica password - check_password_hash(hash, password)
+                if check_password_hash(user_password_hash, password):
                     session['user_id'] = user['id']
                     session['username'] = user['username']
-                    session['email'] = user['email']
+                    session['email'] = user.get('email', '')
+                    print(f"✅ Login riuscito: {username}")
                     return redirect(url_for('home'))
                 else:
+                    print(f"❌ Password errata per: {username}")
                     return render_template('login.html', error='Credenziali non valide')
             else:
+                print(f"❌ Utente non trovato: {username}")
                 return render_template('login.html', error='Credenziali non valide')
         except Exception as e:
-            print(f"Errore login: {e}")
-            return render_template('login.html', error='Errore durante il login')
+            print(f"❌ Errore login: {e}")
+            import traceback
+            traceback.print_exc()
+            return render_template('login.html', error=f'Errore durante il login: {str(e)}')
     
     return render_template('login.html')
 
@@ -102,6 +130,9 @@ def register():
         if password != confirm_password:
             return render_template('register.html', error='Le password non coincidono')
         
+        if not supabase:
+            return render_template('register.html', error='Errore di configurazione. Contatta l\'amministratore.')
+        
         try:
             # Verifica se username esiste già
             result = supabase.table('users').select('id').eq('username', username).execute()
@@ -115,13 +146,25 @@ def register():
                 'password': hashed_password,
                 'email': email
             }
-            supabase.table('users').insert(new_user).execute()
             
-            # TODO: Invia email di registrazione
-            return redirect(url_for('login'))
+            insert_result = supabase.table('users').insert(new_user).execute()
+            
+            if insert_result.data:
+                print(f"✅ Utente registrato: {username}")
+                # TODO: Invia email di registrazione
+                return redirect(url_for('login'))
+            else:
+                print(f"❌ Errore inserimento utente: {insert_result}")
+                return render_template('register.html', error='Errore durante la registrazione')
+                
         except Exception as e:
-            print(f"Errore registrazione: {e}")
-            return render_template('register.html', error='Errore durante la registrazione')
+            print(f"❌ Errore registrazione: {e}")
+            import traceback
+            traceback.print_exc()
+            error_msg = str(e)
+            if 'duplicate key' in error_msg.lower() or 'unique' in error_msg.lower():
+                return render_template('register.html', error='Username o email già in uso')
+            return render_template('register.html', error=f'Errore durante la registrazione: {error_msg}')
     
     return render_template('register.html')
 
@@ -420,6 +463,26 @@ def api_get_image(image_type, item_id):
         except:
             return '', 404
 
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    error_details = traceback.format_exc()
+    print(f"❌ Errore 500: {error_details}")
+    return render_template('error.html', error="Errore interno del server"), 500
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error.html', error="Pagina non trovata"), 404
+
 if __name__ == '__main__':
+    print("=" * 50)
+    print("🚀 Avvio applicazione Flask - Gruppo Cagnavin")
+    print("=" * 50)
+    if supabase:
+        print("✅ Supabase connesso")
+    else:
+        print("⚠️  Supabase NON connesso - verifica le variabili d'ambiente")
+    print(f"🌐 Server in ascolto su: http://0.0.0.0:{os.environ.get('PORT', 5000)}")
+    print("=" * 50)
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
 

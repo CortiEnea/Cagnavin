@@ -71,10 +71,11 @@ L'applicazione sarà disponibile su: `http://localhost:5000`
 
 3. **Configura le variabili d'ambiente**:
    - Vai su **Settings** → **Environment Variables**
-   - Aggiungi:
+   - Aggiungi le 3 variabili richieste (vedi `VERCEL_SETUP.md` per dettagli completi):
      - `SUPABASE_URL`: la tua URL Supabase (es. `https://xxxxx.supabase.co`)
-     - `SUPABASE_KEY`: la tua chiave API pubblica Supabase (anon key)
-     - `SECRET_KEY`: una chiave segreta casuale per le sessioni Flask (usa `openssl rand -hex 32` per generarla)
+     - `SUPABASE_KEY`: la tua chiave API pubblica Supabase (anon key, NON service_role)
+     - `SECRET_KEY`: una chiave segreta casuale (usa `openssl rand -hex 32` per generarla)
+   - **Seleziona tutti gli ambienti** (Production, Preview, Development)
 
 4. **Deploy**:
    - Clicca su "Deploy"
@@ -103,6 +104,7 @@ L'applicazione sarà disponibile su: `http://localhost:5000`
 ├── vercel.json           # Configurazione Vercel
 ├── supabase_setup.sql    # Script SQL per Supabase
 ├── SUPABASE_SETUP.md     # Guida configurazione Supabase
+├── VERCEL_SETUP.md       # Guida configurazione variabili Vercel
 ├── README.md             # Questo file
 ├── templates/            # Template HTML
 │   ├── base.html         # Template base
