@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Crea Gita - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="add-trip-view">
+    <div class="add-trip-container">
+        <h1 class="add-trip-title">Creazione Gita</h1>
+        
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" action="/add-trip" enctype="multipart/form-data" class="add-trip-form">
+            <div class="form-grid">
+                <div class="form-column">
+                    <input type="text" name="destinazione" placeholder="Destinazione" class="custom-field" required>
+                    <input type="date" name="data" class="custom-field" required>
+                    
+                    <div class="participants-fields">
+                        <input type="number" name="n_min_partecipanti" placeholder="Partecipanti Min" class="custom-field" min="0" required>
+                        <input type="number" name="n_max_partecipanti" placeholder="Partecipanti Max" class="custom-field" min="1" required>
+                    </div>
+                    
+                    <input type="number" name="quota" placeholder="Prezzo (CHF)" class="custom-field" step="0.01" min="0" required>
+                    <textarea name="descrizione" placeholder="Descrizione" class="custom-field" rows="5"></textarea>
+                    
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="lunchIncluded" onchange="toggleLunchField()">
+                        <span>Pranzo incluso?</span>
+                    </label>
+                    
+                    <input type="text" name="pranzo" id="lunchField" placeholder="Pranzo" class="custom-field" style="display: none;">
+                </div>
+                
+                <div class="form-column">
+                    <div class="upload-container">
+                        <label for="image" class="upload-label">
+                            <span>Carica immagine</span>
+                            <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(this)">
+                        </label>
+                        <img id="imagePreview" class="preview-image" style="display: none;">
+                    </div>
+                    
+                    <button type="submit" class="create-button">Crea</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleLunchField() {
+    const checkbox = document.getElementById('lunchIncluded');
+    const field = document.getElementById('lunchField');
+    field.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}
+

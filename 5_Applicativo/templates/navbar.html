@@ -1,0 +1,76 @@
+<nav class="navbar" id="navbar">
+    <div class="navbar-container">
+        <h1 class="navbar-title"><a href="/">Gruppo Cagnavin</a></h1>
+        
+        <div class="navbar-links" id="navbarLinks">
+            {% if user %}
+                {% if user == 'Admin' %}
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/trip" class="nav-link">Gite</a>
+                    <a href="/add-trip" class="nav-link">Aggiungi gita</a>
+                    <a href="/request" class="nav-link">Richieste</a>
+                    <a href="/users" class="nav-link">Utenti</a>
+                    <a href="/profile" class="nav-link">{{ user }}</a>
+                {% else %}
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/trip" class="nav-link">Gite</a>
+                    <a href="/profile" class="nav-link">{{ user }}</a>
+                {% endif %}
+            {% else %}
+                <a href="/" class="nav-link">Home</a>
+                <a href="/trip" class="nav-link">Gite</a>
+                <a href="/login" class="nav-link">Accedi</a>
+            {% endif %}
+        </div>
+        
+        <button class="mobile-menu-button" id="mobileMenuButton" aria-label="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h18"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+        {% if user %}
+            {% if user == 'Admin' %}
+                <a href="/" class="mobile-nav-link">Home</a>
+                <a href="/trip" class="mobile-nav-link">Gite</a>
+                <a href="/add-trip" class="mobile-nav-link">Aggiungi gita</a>
+                <a href="/request" class="mobile-nav-link">Richieste</a>
+                <a href="/users" class="mobile-nav-link">Utenti</a>
+                <a href="/profile" class="mobile-nav-link">{{ user }}</a>
+            {% else %}
+                <a href="/" class="mobile-nav-link">Home</a>
+                <a href="/trip" class="mobile-nav-link">Gite</a>
+                <a href="/profile" class="mobile-nav-link">{{ user }}</a>
+            {% endif %}
+        {% else %}
+            <a href="/" class="mobile-nav-link">Home</a>
+            <a href="/trip" class="mobile-nav-link">Gite</a>
+            <a href="/login" class="mobile-nav-link">Accedi</a>
+        {% endif %}
+    </div>
+</nav>
+
+<script>
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobileMenuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('visible');
+        });
+    }
+    
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+</script>
+

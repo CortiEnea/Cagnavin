@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Registrazione - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="login-container-wrapper">
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="monkey">
+        <h1>Registrazione</h1>
+        
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" action="/register">
+            <input type="text" name="username" placeholder="Nome utente" class="custom-field" required>
+            <input type="email" name="email" placeholder="Email" class="custom-field" required>
+            <input type="password" name="password" placeholder="Password" class="custom-field" required>
+            <input type="password" name="confirm_password" placeholder="Conferma Password" class="custom-field" required>
+            <button type="submit" class="login-button">Registrati</button>
+        </form>
+        
+        <a href="/login" class="no-account" style="margin-top: 1rem;">Hai già un account? Accedi</a>
+    </div>
+</div>
+{% endblock %}
+

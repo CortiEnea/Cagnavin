@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<!-- Carousel -->
+<div class="carousel-container">
+    <div class="carousel-image-container" id="carouselContainer">
+        <img src="{{ url_for('static', filename='images/gruppone.jpg') }}" alt="Gruppo" class="carousel-image active">
+        <img src="{{ url_for('static', filename='images/gruppo.jpg') }}" alt="Gruppo" class="carousel-image">
+        <img src="{{ url_for('static', filename='images/gruppozzo.jpg') }}" alt="Gruppo" class="carousel-image">
+        <img src="{{ url_for('static', filename='images/gita.jpg') }}" alt="Gita" class="carousel-image">
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+    <div class="carousel-overlay"></div>
+</div>
+
+<!-- Chi Siamo Section -->
+<section class="chisiamo-section responsive-section">
+    <div class="section-content">
+        <h2 class="section-title">Chi siamo?</h2>
+        <p class="section-description">
+            Quella che un tempo era semplicemente una gita tra colleghi di lavoro nel Piemonte, nel 2014 è diventata la celebre gita del Gruppo Cagnavin. Il nome "Cagnavin" nacque in modo spontaneo, ispirato dalla reazione stupita della gerente di un agriturismo, colpita dalla quantità di vino e cibo consumata dai partecipanti.
+        </p>
+        <p class="section-description">
+            Le gite del Gruppo Cagnavin sono aperte a chiunque desideri trascorrere una giornata in allegria, all'insegna del motto "mangiare e bere in compagnia". Il gruppo non ha uno statuto ufficiale ed è senza scopo di lucro: ogni partecipante contribuisce con una quota che copre i costi del bus e del ristorante.
+        </p>
+        <p class="section-description">
+            Ogni anno si organizzano due uscite: una in primavera e una in autunno. Le destinazioni principali sono Piemonte, Trentino, Aosta e Lombardia, ma ogni anno si esplorano anche nuove località.
+        </p>
+    </div>
+    <div class="section-image-container">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="responsive-image">
+    </div>
+</section>
+
+<!-- History Section -->
+<section class="history-section responsive-section">
+    <div class="section-image-container">
+        <img src="{{ url_for('static', filename='images/vino.jpg') }}" alt="Vino" class="section-image">
+    </div>
+    <div class="section-content">
+        <h2 class="section-title-white">Rivivi tutte le esperienze</h2>
+        <p class="section-description-white">Riguarda tutte le gite del gruppo Cagnavin grazie allo storico.</p>
+        <a href="/trip" class="newsletter-button">Visualizza</a>
+    </div>
+</section>
+
+<!-- Proposal Section -->
+<section class="proposal-section responsive-section">
+    <div class="section-content">
+        <h2 class="section-title">Hai idee per gite future?</h2>
+        <p class="section-description">Conosci un luogo per una gita e vorresti proporla?</p>
+        <p class="section-description">Usa il form alla seguente pagina per fare una proposta!</p>
+        <button class="newsletter-button" onclick="openProposalDialog()">Proponi</button>
+    </div>
+    <div class="section-image-container">
+        <img src="{{ url_for('static', filename='images/a.jpg') }}" alt="Vino" class="section-image">
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section responsive-section">
+    <h2 class="newsletter-title">Vuoi essere sempre aggiornato?</h2>
+    <p class="newsletter-description">Iscriviti alla nostra newsletter per non perderti nessuna novità del gruppo.</p>
+    <form class="responsive-form" id="newsletterForm">
+        <input type="email" placeholder="Enter your email" class="newsletter-input" required>
+        <button type="submit" class="newsletter-button">Iscriviti</button>
+    </form>
+</section>
+
+<!-- Proposal Dialog -->
+<div id="proposalDialog" class="dialog-overlay" style="display: none;">
+    <div class="dialog-content responsive-dialog">
+        <div class="dialog-header">
+            <h3>Proponi la tua idea</h3>
+            <button class="dialog-close" onclick="closeProposalDialog()">&times;</button>
+        </div>
+        <form id="proposalForm">
+            <input type="text" name="destination" placeholder="Città di destinazione" class="custom-field" required>
+            <input type="text" name="wine_cellar_name" placeholder="Nome della cantina" class="custom-field" required>
+            <input type="text" name="wine_cellar_address" placeholder="Indirizzo della cantina" class="custom-field" required>
+            <div class="dialog-footer">
+                <button type="button" class="cancel-button" onclick="closeProposalDialog()">Annulla</button>
+                <button type="submit" class="create-button">Invia Proposta</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-image');
+const dotsContainer = document.getElementById('carouselDots');
+
+// Create dots
+slides.forEach((_, index) => {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot';
+    if (index === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => setSlide(index));
+    dotsContainer.appendChild(dot);
+});
+
+function setSlide(index) {
+    currentSlide = index;
+    slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
+}
+
+function moveCarousel(direction) {
+    currentSlide = (currentSlide + direction + slides.length) % slides.length;
+    setSlide(currentSlide);
+}
+
+// Auto-play carousel
+setInterval(() => moveCarousel(1), 5000);
+
+function openProposalDialog() {
+    {% if user %}
+    document.getElementById('proposalDialog').style.display = 'flex';
+    {% else %}
+    window.location.href = '/login';
+    {% endif %}
+}
+
+function closeProposalDialog() {
+    document.getElementById('proposalDialog').style.display = 'none';
+    document.getElementById('proposalForm').reset();
+}
+
+document.getElementById('proposalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+        destination: formData.get('destination'),
+        wine_cellar_name: formData.get('wine_cellar_name'),
+        wine_cellar_address: formData.get('wine_cellar_address')
+    };
+    
+    try {
+        const response = await fetch('/api/proposals', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            alert('Proposta inviata con successo!');
+            closeProposalDialog();
+        } else {
+            alert('Errore nell\'invio della proposta');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nell\'invio della proposta');
+    }
+});
+</script>
+{% endblock %}
+

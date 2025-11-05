@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Profilo - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="profile-view">
+    <div class="profile-container">
+        <div class="profile-header">
+            <h3>{{ user.username }}</h3>
+            <h2>Gestisci il tuo profilo</h2>
+            {% if user.profile_picture %}
+            <img src="/api/image/user/{{ user.id }}" alt="Profilo" class="profile-image">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default-profile.jpg') }}" alt="Profilo" class="profile-image">
+            {% endif %}
+        </div>
+        
+        <form id="profileForm" class="profile-form">
+            <div class="profile-section">
+                <input type="email" id="email" name="email" value="{{ user.email }}" placeholder="Email" class="custom-field" required>
+                <div class="upload-profile">
+                    <label for="profilePicture" class="upload-button">Carica foto profilo</label>
+                    <input type="file" id="profilePicture" name="profilePicture" accept="image/*" style="display: none;" onchange="previewProfileImage(this)">
+                    <img id="profilePreview" class="profile-preview" style="display: none;">
+                </div>
+            </div>
+            
+            <div class="password-section">
+                <h4>Cambia la password</h4>
+                <input type="password" id="oldPassword" name="old_password" placeholder="Inserisci la vecchia password" class="custom-field">
+                <input type="password" id="newPassword" name="password" placeholder="Inserisci la nuova password" class="custom-field">
+                <input type="password" id="confirmPassword" name="confirm_password" placeholder="Conferma la password" class="custom-field">
+            </div>
+            
+            <div class="profile-actions">
+                <button type="button" class="btn-delete" onclick="deleteProfile()">Elimina Profilo</button>
+                <a href="/logout" class="btn-logout">Logout</a>
+            </div>
+            
+            <button type="submit" class="btn-save">Salva modifiche</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewProfileImage(input) {
+    const preview = document.getElementById('profilePreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = {
+        email: document.getElementById('email').value
+    };
+    
+    const oldPassword = document.getElementById('oldPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (oldPassword || newPassword || confirmPassword) {
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            alert('Per cambiare la password, compila tutti i campi password');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('Le nuove password non coincidono');
+            return;
+        }
+        
+        data.old_password = oldPassword;
+        data.password = newPassword;
+    }
+    
+    try {
+        const response = await fetch(`/api/users/{{ user.id }}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            alert('Profilo aggiornato');
+            if (newPassword) {
+                document.getElementById('oldPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            }
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Errore nell\'aggiornamento del profilo');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nell\'aggiornamento del profilo');
+    }
+});
+
+function deleteProfile() {
+    if (!confirm('Confermi di voler eliminare il tuo account? Tutte le tue eventuali iscrizioni e proposte di gita verranno eliminate.')) return;
+    
+    // TODO: Implementare eliminazione profilo
+    alert('Funzionalità di eliminazione profilo da implementare');
+}
+</script>
+{% endblock %}
+

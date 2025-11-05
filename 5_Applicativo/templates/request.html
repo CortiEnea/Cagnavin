@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Richieste - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="request-view">
+    <div class="request-container">
+        <h1>Richieste di partecipazione</h1>
+        
+        {% if requests %}
+        <div class="requests-list">
+            {% for req in requests %}
+            <div class="request-block">
+                <div class="request-info">
+                    <span class="request-username">{{ req.users.username if req.users else 'N/A' }}</span>
+                    <span class="request-trip">Gita: {{ req.trips.destinazione if req.trips else 'N/A' }}</span>
+                </div>
+                <div class="request-actions">
+                    <button class="btn-accept" onclick="acceptRequest({{ req.id }})">Accetta</button>
+                    <button class="btn-reject" onclick="rejectRequest({{ req.id }})">Rifiuta</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-requests">
+            <h3>Nessuna richiesta in sospeso</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+async function acceptRequest(requestId) {
+    if (!confirm('Confermi di voler accettare questa richiesta?')) return;
+    
+    try {
+        const response = await fetch(`/api/requests/${requestId}/accept`, {method: 'POST'});
+        if (response.ok) {
+            alert('Richiesta accettata con successo!');
+            location.reload();
+        } else {
+            alert('Errore nell\'accettazione della richiesta');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nell\'accettazione della richiesta');
+    }
+}
+
+async function rejectRequest(requestId) {
+    if (!confirm('Confermi di voler rifiutare questa richiesta?')) return;
+    
+    try {
+        const response = await fetch(`/api/requests/${requestId}/reject`, {method: 'POST'});
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Errore nel rifiuto della richiesta');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nel rifiuto della richiesta');
+    }
+}
+</script>
+{% endblock %}
+

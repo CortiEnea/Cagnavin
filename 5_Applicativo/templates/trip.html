@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Gite - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="trip-view">
+    <h1 class="trip-title">Gite</h1>
+    
+    <div class="trip-container">
+        <div class="tabs">
+            <button class="tab-button {% if filter_type == 'all' %}active{% endif %}" onclick="filterTrips('all')">Tutte</button>
+            <button class="tab-button {% if filter_type == 'future' %}active{% endif %}" onclick="filterTrips('future')">Future</button>
+            <button class="tab-button {% if filter_type == 'past' %}active{% endif %}" onclick="filterTrips('past')">Passate</button>
+            {% if is_admin %}
+            <button class="tab-button {% if filter_type == 'drafts' %}active{% endif %}" onclick="filterTrips('drafts')">Bozze</button>
+            {% endif %}
+        </div>
+        
+        {% if filter_type == 'drafts' and is_admin %}
+        <div class="trips-grid" id="proposalsGrid">
+            {% for proposal in proposals %}
+            <div class="trip-card">
+                <div class="trip-info">
+                    <h3>{{ proposal.destination }}</h3>
+                    <p><strong>Nome cantina:</strong> {{ proposal.wine_cellar_name }}</p>
+                    <p><strong>Indirizzo:</strong> {{ proposal.wine_cellar_address }}</p>
+                </div>
+                <div class="trip-actions">
+                    <button class="btn-accept" onclick="acceptProposal({{ proposal.id }})">Accetta</button>
+                    <button class="btn-reject" onclick="rejectProposal({{ proposal.id }})">Rifiuta</button>
+                </div>
+            </div>
+            {% empty %}
+            <p>Nessuna proposta in sospeso</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="trips-grid" id="tripsGrid">
+            {% for trip in trips %}
+            <div class="trip-card">
+                {% if trip.url_immagine %}
+                <img src="/api/image/trip/{{ trip.id }}" alt="{{ trip.destinazione }}" class="trip-image">
+                {% else %}
+                <img src="{{ url_for('static', filename='images/default-profile.jpg') }}" alt="{{ trip.destinazione }}" class="trip-image">
+                {% endif %}
+                <div class="trip-info">
+                    <h3>{{ trip.destinazione }}</h3>
+                    <p><strong>Data:</strong> {{ trip.data.strftime('%d/%m/%Y') if trip.data else 'N/A' }}</p>
+                    <p><strong>Luogo:</strong> {{ trip.descrizione or 'N/A' }}</p>
+                    <p><strong>Partecipanti:</strong> {{ trip.n_partecipanti or 0 }}/{{ trip.n_max_partecipanti }}</p>
+                    <p><strong>Quota:</strong> {{ trip.quota }} CHF</p>
+                </div>
+                <div class="trip-actions">
+                    <button class="btn-details" onclick="showTripDetails({{ trip.id }})">Dettagli</button>
+                    {% if user and not is_admin %}
+                    {% if trip.data %}
+                    {% set trip_date_str = trip.data.isoformat() if trip.data is defined else trip.data %}
+                    {% set trip_date = trip.data if trip.data is date else (date.fromisoformat(trip_date_str) if isinstance(trip_date_str, str) else date.today()) %}
+                    {% if trip_date >= date.today() %}
+                    <button class="btn-request" onclick="requestJoin({{ trip.id }})">Richiedi partecipazione</button>
+                    {% endif %}
+                    {% endif %}
+                    {% if is_admin %}
+                    <button class="btn-participants" onclick="showParticipants({{ trip.id }})">Partecipanti</button>
+                    <button class="btn-delete" onclick="deleteTrip({{ trip.id }})">Elimina</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p>Nessuna gita disponibile</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <a href="/api/trips?filter=future" download="future-trips.ics" class="download-link">
+        <button class="newsletter-button">Scarica gite future (.ics)</button>
+    </a>
+</div>
+
+<!-- Trip Details Dialog -->
+<div id="tripDetailsDialog" class="dialog-overlay" style="display: none;">
+    <div class="dialog-content responsive-dialog">
+        <div class="dialog-header">
+            <h3>Dettagli della gita</h3>
+            <button class="dialog-close" onclick="closeTripDetails()">&times;</button>
+        </div>
+        <div id="tripDetailsContent"></div>
+        <div class="dialog-footer">
+            <button class="cancel-button" onclick="closeTripDetails()">Chiudi</button>
+        </div>
+    </div>
+</div>
+
+<!-- Participants Dialog -->
+<div id="participantsDialog" class="dialog-overlay" style="display: none;">
+    <div class="dialog-content responsive-dialog">
+        <div class="dialog-header">
+            <h3>Lista di partecipanti</h3>
+            <button class="dialog-close" onclick="closeParticipants()">&times;</button>
+        </div>
+        <div id="participantsContent"></div>
+    </div>
+</div>
+
+<script>
+function filterTrips(filter) {
+    window.location.href = `/trip?filter=${filter}`;
+}
+
+async function showTripDetails(tripId) {
+    try {
+        const response = await fetch(`/api/trips/${tripId}`);
+        const trip = await response.json();
+        
+        const content = `
+            ${trip.url_immagine ? `<img src="/api/image/trip/${trip.id}" alt="${trip.destinazione}" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">` : ''}
+            <p><strong>Destinazione:</strong> ${trip.destinazione}</p>
+            <p><strong>Data:</strong> ${new Date(trip.data).toLocaleDateString('it-IT')}</p>
+            <p><strong>Quota:</strong> ${trip.quota} CHF</p>
+            <p><strong>Descrizione:</strong> ${trip.descrizione || 'N/A'}</p>
+            <p><strong>Partecipanti:</strong> ${trip.n_partecipanti || 0}/${trip.n_max_partecipanti}</p>
+            <p><strong>Pranzo:</strong> ${trip.pranzo || 'Non incluso'}</p>
+        `;
+        
+        document.getElementById('tripDetailsContent').innerHTML = content;
+        document.getElementById('tripDetailsDialog').style.display = 'flex';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nel caricamento dei dettagli');
+    }
+}
+
+function closeTripDetails() {
+    document.getElementById('tripDetailsDialog').style.display = 'none';
+}
+
+async function showParticipants(tripId) {
+    try {
+        const response = await fetch(`/api/participants/${tripId}`);
+        const participants = await response.json();
+        
+        let content = '<table class="participants-table"><thead><tr><th>Foto</th><th>Username</th><th>Pagato</th><th>Azioni</th></tr></thead><tbody>';
+        
+        participants.forEach(p => {
+            const user = p.users || {};
+            content += `
+                <tr>
+                    <td><img src="/api/image/user/${user.id}" alt="${user.username}" class="profile-thumb"></td>
+                    <td>${user.username || 'N/A'}</td>
+                    <td>${p.has_pay ? 'Sì' : 'No'}</td>
+                    <td><button class="btn-delete-small" onclick="removeParticipant(${p.id}, ${tripId})">Rimuovi</button></td>
+                </tr>
+            `;
+        });
+        
+        content += '</tbody></table>';
+        document.getElementById('participantsContent').innerHTML = content;
+        document.getElementById('participantsDialog').style.display = 'flex';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nel caricamento dei partecipanti');
+    }
+}
+
+function closeParticipants() {
+    document.getElementById('participantsDialog').style.display = 'none';
+}
+
+async function requestJoin(tripId) {
+    if (!confirm('Vuoi inviare la tua richiesta di partecipazione?')) return;
+    
+    try {
+        const response = await fetch('/api/requests', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({trip_id: tripId})
+        });
+        
+        if (response.ok) {
+            alert('Richiesta inviata con successo!');
+        } else {
+            alert('Errore nell\'invio della richiesta');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nell\'invio della richiesta');
+    }
+}
+
+async function deleteTrip(tripId) {
+    if (!confirm('Confermi di voler eliminare la gita? Eliminando la gita verranno eliminati anche i partecipanti già iscritti e le richieste di partecipazione.')) return;
+    
+    try {
+        const response = await fetch(`/api/trips/${tripId}`, {method: 'DELETE'});
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Errore nell\'eliminazione della gita');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nell\'eliminazione della gita');
+    }
+}
+
+async function acceptProposal(proposalId) {
+    // Redirect to add trip with proposal data
+    window.location.href = `/add-trip?proposal_id=${proposalId}`;
+}
+
+async function rejectProposal(proposalId) {
+    if (!confirm('Confermi di voler rifiutare la proposta?')) return;
+    
+    try {
+        const response = await fetch(`/api/proposals/${proposalId}`, {method: 'DELETE'});
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Errore nel rifiuto della proposta');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Errore nel rifiuto della proposta');
+    }
+}
+</script>
+{% endblock %}
+

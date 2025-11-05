@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Lista Utenti - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="request-view">
+    <div class="request-container">
+        <h1>Lista utenti</h1>
+        
+        {% if users %}
+        <table class="participants-table">
+            <thead>
+                <tr>
+                    <th>Foto Profilo</th>
+                    <th>Username</th>
+                    <th>Indirizzo email</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>
+                        {% if u.profile_picture %}
+                        <img src="/api/image/user/{{ u.id }}" alt="{{ u.username }}" class="profile-thumb">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/default-profile.jpg') }}" alt="{{ u.username }}" class="profile-thumb">
+                        {% endif %}
+                    </td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        <button class="btn-delete-small" onclick="deleteUser({{ u.id }}, '{{ u.username }}')">Elimina</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-requests">
+            <h3>Nessun utente trovato</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+async function deleteUser(userId, username) {
+    if (!confirm(`Confermi di voler eliminare l'account di ${username}? Tutte le eventuali iscrizioni e proposte di gita verranno eliminate.`)) return;
+    
+    // TODO: Implementare eliminazione utente
+    alert('Funzionalità di eliminazione utente da implementare');
+}
+</script>
+{% endblock %}
+

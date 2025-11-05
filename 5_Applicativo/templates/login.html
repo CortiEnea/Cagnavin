@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="login-container-wrapper">
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="monkey">
+        <h1>Accedi</h1>
+        
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" action="/login">
+            <input type="text" name="username" placeholder="Nome utente" class="custom-field" required>
+            <input type="password" name="password" placeholder="Password" class="custom-field" required>
+            <button type="submit" class="login-button">Accedi</button>
+        </form>
+        
+        <a href="#" class="forgot-password">Password dimenticata?</a>
+        <a href="/register" class="no-account">Non hai un account? Registrati!</a>
+    </div>
+</div>
+{% endblock %}
+
