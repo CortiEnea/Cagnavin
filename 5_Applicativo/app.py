@@ -12,7 +12,22 @@ from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
-CORS(app)
+
+# --- Nuova/Modificata configurazione per cookie e CORS ---
+# Origine frontend (da impostare in environment), fallback a localhost
+FRONTEND_ORIGIN = os.environ.get('FRONTEND_ORIGIN', 'http://localhost:3000')
+
+# Se l'app è in produzione, abilita cookie sicuri; altrimenti disabilita Secure per testing locale
+FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
+USE_SECURE_COOKIES = FLASK_ENV == 'production' or os.environ.get('SESSION_COOKIE_SECURE') == '1'
+
+# Impostazioni cookie sessione (utile se frontend e backend sono su origini diverse)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'   # consente cookie cross-site quando necessario
+app.config['SESSION_COOKIE_SECURE'] = bool(USE_SECURE_COOKIES)
+
+# Abilita CORS con supporto a credentials; specifica l'origine consentita (non usare '*')
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": FRONTEND_ORIGIN}})
+# --- Fine modifiche configurazione ---
 
 # Configurazione Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
