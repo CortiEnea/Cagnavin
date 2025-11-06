@@ -264,9 +264,9 @@ def add_trip():
             return redirect(url_for('trip'))
         except Exception as e:
             print(f"Errore creazione gita: {e}")
-            return render_template('add_trip.html', error='Errore durante la creazione della gita')
+            return render_template('add_trip.html', error='Errore durante la creazione della gita', user=session.get('username'))
     
-    return render_template('add_trip.html')
+    return render_template('add_trip.html', user=session.get('username'))
 
 @app.route('/profile')
 @login_required
@@ -289,10 +289,10 @@ def request_view():
     try:
         requests_result = supabase.table('requests').select('*, users(*), trips(*)').execute()
         requests = requests_result.data if requests_result.data else []
-        return render_template('request.html', requests=requests)
+        return render_template('request.html', requests=requests, user=session.get('username'))
     except Exception as e:
         print(f"Errore richieste: {e}")
-        return render_template('request.html', requests=[])
+        return render_template('request.html', requests=[], user=session.get('username'))
 
 @app.route('/users')
 @admin_required
@@ -300,10 +300,10 @@ def users_list():
     try:
         users_result = supabase.table('users').select('*').execute()
         users = users_result.data if users_result.data else []
-        return render_template('users.html', users=users)
+        return render_template('users.html', users=users, user=session.get('username'))
     except Exception as e:
         print(f"Errore lista utenti: {e}")
-        return render_template('users.html', users=[])
+        return render_template('users.html', users=[], user=session.get('username'))
 
 # API Routes
 @app.route('/api/trips', methods=['GET'])
