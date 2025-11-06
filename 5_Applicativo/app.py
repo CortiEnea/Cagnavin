@@ -178,34 +178,49 @@ def trip():
     filter_type = request.args.get('filter', 'all')
     user = session.get('username')
     is_admin = user == 'Admin'
-    
+
     try:
         trips_result = supabase.table('trips').select('*').order('data', desc=False).execute()
-        trips = trips_result.data if trips_result.data else []
-        
-        # Converti date string in date objects
+        trips_raw = trips_result.data if trips_result.data else []
+
         today = date.today()
-        for trip in trips:
-            if isinstance(trip['data'], str):
-                trip['data'] = datetime.fromisoformat(trip['data']).date()
-        
+        trips = []
+        for t in trips_raw:
+            # Normalizza data come stringa ISO e crea comodi campi derivati per il template
+            raw_date = t.get('data')
+            try:
+                if isinstance(raw_date, str):
+                    d = datetime.fromisoformat(raw_date).date()
+                elif hasattr(raw_date, 'isoformat'):
+                    d = raw_date
+                else:
+                    d = None
+            except Exception:
+                d = None
+
+            t['data_iso'] = d.isoformat() if d else None
+            t['data_display'] = d.strftime('%d/%m/%Y') if d else 'N/A'
+            t['is_future'] = bool(d and d >= today)
+            trips.append(t)
+
         if filter_type == 'future':
-            trips = [t for t in trips if t['data'] > today]
+            trips = [t for t in trips if t['is_future']]
         elif filter_type == 'past':
-            trips = [t for t in trips if t['data'] < today]
-        
-        # Carica proposte se admin
+            trips = [t for t in trips if t.get('data_iso') and datetime.fromisoformat(t['data_iso']).date() < today]
+
         proposals = []
         if is_admin:
             proposals_result = supabase.table('proposals').select('*').execute()
             proposals = proposals_result.data if proposals_result.data else []
-        
-        return render_template('trip.html', trips=trips, proposals=proposals, 
-                             filter_type=filter_type, user=user, is_admin=is_admin)
+
+        return render_template('trip.html', trips=trips, proposals=proposals,
+                               filter_type=filter_type, user=user, is_admin=is_admin)
     except Exception as e:
         print(f"Errore carica gite: {e}")
-        return render_template('trip.html', trips=[], proposals=[], 
-                             filter_type=filter_type, user=user, is_admin=is_admin)
+        import traceback
+        traceback.print_exc()
+        return render_template('trip.html', trips=[], proposals=[],
+                               filter_type=filter_type, user=user, is_admin=is_admin)
 
 @app.route('/add-trip', methods=['GET', 'POST'])
 @admin_required

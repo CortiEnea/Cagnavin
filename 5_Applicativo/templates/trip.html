@@ -45,20 +45,15 @@
                 {% endif %}
                 <div class="trip-info">
                     <h3>{{ trip.destinazione }}</h3>
-                    <p><strong>Data:</strong> {{ trip.data.strftime('%d/%m/%Y') if trip.data else 'N/A' }}</p>
+                    <p><strong>Data:</strong> {{ trip.data_display }}</p>
                     <p><strong>Luogo:</strong> {{ trip.descrizione or 'N/A' }}</p>
                     <p><strong>Partecipanti:</strong> {{ trip.n_partecipanti or 0 }}/{{ trip.n_max_partecipanti }}</p>
                     <p><strong>Quota:</strong> {{ trip.quota }} CHF</p>
                 </div>
                 <div class="trip-actions">
                     <button class="btn-details" onclick="showTripDetails({{ trip.id }})">Dettagli</button>
-                    {% if user and not is_admin %}
-                    {% if trip.data %}
-                    {% set trip_date_str = trip.data.isoformat() if trip.data is defined else trip.data %}
-                    {% set trip_date = trip.data if trip.data is date else (date.fromisoformat(trip_date_str) if isinstance(trip_date_str, str) else date.today()) %}
-                    {% if trip_date >= date.today() %}
+                    {% if user and not is_admin and trip.is_future %}
                     <button class="btn-request" onclick="requestJoin({{ trip.id }})">Richiedi partecipazione</button>
-                    {% endif %}
                     {% endif %}
                     {% if is_admin %}
                     <button class="btn-participants" onclick="showParticipants({{ trip.id }})">Partecipanti</button>
