@@ -16,7 +16,8 @@
 </div>
 
 <!-- Chi Siamo Section -->
-<section class="chisiamo-section responsive-section">
+<section class="chisiamo-section">
+  <div class="responsive-section" style="max-width: 1200px; margin: 0 auto;">
     <div class="section-content">
         <h2 class="section-title">Chi siamo?</h2>
         <p class="section-description">
@@ -32,22 +33,26 @@
     <div class="section-image-container">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="responsive-image">
     </div>
+  </div>
 </section>
 
-<!-- History Section -->
-<section class="history-section responsive-section">
+<!-- Sezione: Vai alle Gite -->
+<section class="history-section">
+  <div class="responsive-section" style="max-width: 1200px; margin: 0 auto;">
     <div class="section-image-container">
         <img src="{{ url_for('static', filename='images/vino.jpg') }}" alt="Vino" class="section-image">
     </div>
     <div class="section-content">
         <h2 class="section-title-white">Rivivi tutte le esperienze</h2>
         <p class="section-description-white">Riguarda tutte le gite del gruppo Cagnavin grazie allo storico.</p>
-        <a href="/trip" class="newsletter-button">Visualizza</a>
+        <a href="{{ url_for('trip') }}" class="newsletter-button" aria-label="Vai alle gite">Visualizza gite</a>
     </div>
+  </div>
 </section>
 
 <!-- Proposal Section -->
-<section class="proposal-section responsive-section">
+<section class="proposal-section">
+  <div class="responsive-section" style="max-width: 1200px; margin: 0 auto;">
     <div class="section-content">
         <h2 class="section-title">Hai idee per gite future?</h2>
         <p class="section-description">Conosci un luogo per una gita e vorresti proporla?</p>
@@ -57,16 +62,19 @@
     <div class="section-image-container">
         <img src="{{ url_for('static', filename='images/a.jpg') }}" alt="Vino" class="section-image">
     </div>
+  </div>
 </section>
 
 <!-- Newsletter Section -->
-<section class="newsletter-section responsive-section">
-    <h2 class="newsletter-title">Vuoi essere sempre aggiornato?</h2>
-    <p class="newsletter-description">Iscriviti alla nostra newsletter per non perderti nessuna novità del gruppo.</p>
-    <form class="responsive-form" id="newsletterForm">
-        <input type="email" placeholder="Enter your email" class="newsletter-input" required>
-        <button type="submit" class="newsletter-button">Iscriviti</button>
-    </form>
+<section class="newsletter-section">
+  <div style="max-width: 1200px; margin: 0 auto; text-align:center;">
+      <h2 class="newsletter-title">Vuoi essere sempre aggiornato?</h2>
+      <p class="newsletter-description">Iscriviti alla nostra newsletter per non perderti nessuna novità del gruppo.</p>
+      <form class="responsive-form" id="newsletterForm">
+          <input type="email" placeholder="Enter your email" class="newsletter-input" required>
+          <button type="submit" class="newsletter-button">Iscriviti</button>
+      </form>
+  </div>
 </section>
 
 <!-- Proposal Dialog -->
