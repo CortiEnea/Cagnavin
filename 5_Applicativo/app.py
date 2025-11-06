@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime, date
@@ -12,27 +13,18 @@ from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+CORS(app)
 
-# --- Modifica: richiedi FRONTEND_ORIGIN esplicito (no fallback a localhost) ---
-FRONTEND_ORIGIN = os.environ.get('FRONTEND_ORIGIN')  # deve essere impostato in produzione (es. https://cagnavin.vercel.app)
+# Respect original scheme/host behind Vercel's proxy (needed for secure cookies)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
-USE_SECURE_COOKIES = FLASK_ENV == 'production' or os.environ.get('SESSION_COOKIE_SECURE') == '1'
-
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = bool(USE_SECURE_COOKIES)
-app.config['SESSION_COOKIE_PATH'] = '/'
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_DOMAIN'] = os.environ.get('SESSION_COOKIE_DOMAIN') or None
-
-if FRONTEND_ORIGIN:
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": FRONTEND_ORIGIN}})
-    print(f"✅ CORS origine frontend impostata: {FRONTEND_ORIGIN}")
-else:
-    # Non impostare un fallback permissivo: logga e abilita CORS in modo non-privilegiato
-    CORS(app)  # evita di rispondere con Access-Control-Allow-Origin errato in produzione
-    print("❌ FRONTEND_ORIGIN non impostato. In produzione imposta FRONTEND_ORIGIN=https://cagnavin.vercel.app")
-# --- Fine modifica ---
+# Session cookie settings for HTTPS
+app.config.update(
+    SESSION_COOKIE_NAME='cagnavin_session',
+    SESSION_COOKIE_SAMESITE='Lax',  # works for normal same-site nav
+    SESSION_COOKIE_SECURE=True,      # required on HTTPS
+    PERMANENT_SESSION_LIFETIME=60 * 60 * 24 * 14  # 14 days (in seconds)
+)
 
 # Configurazione Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
@@ -117,6 +109,8 @@ def login():
                 
                 # Verifica password - check_password_hash(hash, password)
                 if check_password_hash(user_password_hash, password):
+                    # Persist session
+                    session.permanent = True
                     session['user_id'] = user['id']
                     session['username'] = user['username']
                     session['email'] = user.get('email', '')
@@ -508,29 +502,6 @@ def internal_error(error):
 @app.errorhandler(404)
 def not_found(error):
     return render_template('error.html', error="Pagina non trovata"), 404
-
-# --- Nuova funzione: corregge host comuni con typo e reindirizza mantenendo path/query ---
-COMMON_HOST_FIXES = {
-    'cagnaivn': 'cagnavin',  # typo osservato: "cagnaivn" -> "cagnavin"
-    # aggiungi altre varianti se necessario
-}
-
-@app.before_request
-def normalize_host():
-    host_port = request.host  # può essere 'host:port'
-    host = host_port.split(':')[0]
-    # conserva la porta se presente
-    port = ''
-    if ':' in host_port:
-        parts = host_port.split(':', 1)
-        port = ':' + parts[1]
-    for bad, good in COMMON_HOST_FIXES.items():
-        if host == bad or host.startswith(bad + '.'):
-            corrected_host = good + port
-            corrected_url = request.url.replace(request.host, corrected_host, 1)
-            print(f"🔧 Host corretto: {host_port} -> {corrected_host}. Redirect a {corrected_url}")
-            return redirect(corrected_url, code=302)
-# --- Fine normalize_host ---
 
 if __name__ == '__main__':
     print("=" * 50)
