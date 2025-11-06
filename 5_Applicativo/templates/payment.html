@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Pagamento - Gruppo Cagnavin{% endblock %}
+
+{% block content %}
+<div class="request-view">
+  <div class="request-container" style="text-align:center">
+    <h1>Pagamento Gita {{ trip_name }}</h1>
+    {% if amount %}
+    <p>Importo: <strong>{{ amount }} CHF</strong></p>
+    {% endif %}
+    <p>Scansiona il QR con TWINT per completare il pagamento:</p>
+    <div>
+      <img src="{{ qr_url }}" alt="TWINT QR" style="max-width:320px;border-radius:8px;border:1px solid #eee;" />
+    </div>
+    <p style="margin-top:1rem;color:#666">Dopo il pagamento, riceverai conferma via email.</p>
+  </div>
+  </div>
+{% endblock %}
+
+

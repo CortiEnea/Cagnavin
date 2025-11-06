@@ -199,6 +199,17 @@ def trip():
 
         today = date.today()
         trips = []
+        user_trip_blocked = set()
+        if session.get('user_id'):
+            # Trip già richiesti dall'utente (pending) o dove è già partecipante
+            reqs = supabase.table('requests').select('trip_id').eq('user_id', session['user_id']).execute()
+            parts = supabase.table('participants').select('trip_id').eq('user_id', session['user_id']).execute()
+            for r in (reqs.data or []):
+                if r.get('trip_id') is not None:
+                    user_trip_blocked.add(r['trip_id'])
+            for p in (parts.data or []):
+                if p.get('trip_id') is not None:
+                    user_trip_blocked.add(p['trip_id'])
         for t in trips_raw:
             # Normalizza data come stringa ISO e crea comodi campi derivati per il template
             raw_date = t.get('data')
@@ -215,6 +226,8 @@ def trip():
             t['data_iso'] = d.isoformat() if d else None
             t['data_display'] = d.strftime('%d/%m/%Y') if d else 'N/A'
             t['is_future'] = bool(d and d >= today)
+            # can_request: futuro e non già richiesto/iscritto
+            t['can_request'] = t['is_future'] and (t.get('id') not in user_trip_blocked)
             trips.append(t)
 
         if filter_type == 'future':
@@ -385,8 +398,8 @@ def api_accept_request(request_id):
         }
         supabase.table('participants').insert(participant).execute()
         
-        # Aggiorna numero partecipanti
-        trip_result = supabase.table('trips').select('n_partecipanti').eq('id', trip_id).execute()
+        # Aggiorna numero partecipanti e leggi quota/destinazione per email
+        trip_result = supabase.table('trips').select('n_partecipanti, quota, destinazione').eq('id', trip_id).execute()
         if trip_result.data:
             current = trip_result.data[0]['n_partecipanti'] or 0
             supabase.table('trips').update({'n_partecipanti': current + 1}).eq('id', trip_id).execute()
@@ -394,11 +407,124 @@ def api_accept_request(request_id):
         # Elimina richiesta
         supabase.table('requests').delete().eq('id', request_id).execute()
         
-        # TODO: Invia email con fattura
+        # Invio email opzionale con link alla pagina pagamento (QR TWINT)
+        try:
+            user_res = supabase.table('users').select('email, username').eq('id', user_id).execute()
+            if user_res.data:
+                u = user_res.data[0]
+                destinazione = ''
+                amount = 0
+                if trip_result.data:
+                    destinazione = trip_result.data[0].get('destinazione') or ''
+                    amount = trip_result.data[0].get('quota') or 0
+                _send_payment_email(
+                    to_email=u.get('email'),
+                    username=u.get('username'),
+                    destination=destinazione,
+                    amount=amount
+                )
+        except Exception as mail_err:
+            print(f"⚠️ Email non inviata: {mail_err}")
         
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+def _send_payment_email(to_email: str, username: str, destination: str, amount: float):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_pass = os.environ.get('SMTP_PASS')
+    logo_url = os.environ.get('LOGO_URL', 'https://cagnavin.vercel.app/static/images/logo.png')
+    twint_phone = os.environ.get('INVOICE_PHONE', '+41 79 534 05 49')
+
+    if not (smtp_host and smtp_user and smtp_pass and to_email):
+        print("⚠️ SMTP non configurato o email destinatario mancante - skip.")
+        return
+
+    subject = f"Fattura - Gita {destination}" if destination else "Fattura - Gita"
+    amount_str = f"{amount:.2f}" if amount else "-"
+    html = f"""
+    <html>
+      <body style=\"font-family: Arial, sans-serif; background:#f7f7fb; padding:24px;\">
+        <table align=\"center\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.05); overflow:hidden;\">
+          <tr>
+            <td style=\"background: linear-gradient(135deg, #4a0e2c 0%, #2c0735 100%); padding:24px; text-align:center;\">
+              <img src=\"{logo_url}\" alt=\"Cagnavin\" style=\"height:80px; display:block; margin:0 auto 8px auto;\" />
+              <h1 style=\"color:#fff; margin:8px 0 0 0; font-size:22px;\">Gruppo Cagnavin</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style=\"padding:24px; color:#111827;\">
+              <p style=\"margin:0 0 12px 0;\">Ciao <strong>{username or ''}</strong>,</p>
+              <p style=\"margin:0 0 16px 0;\">La tua richiesta di partecipazione è stata <strong>accettata</strong>. Di seguito i dettagli della <strong>fattura</strong>:</p>
+              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#fafafa; border:1px solid #eee; border-radius:8px; padding:12px;\">
+                <tr>
+                  <td style=\"padding:8px;\">Gita</td>
+                  <td style=\"padding:8px;\"><strong>{destination or '-'} </strong></td>
+                </tr>
+                <tr>
+                  <td style=\"padding:8px;\">Importo</td>
+                  <td style=\"padding:8px;\"><strong>{amount_str} CHF</strong></td>
+                </tr>
+                <tr>
+                  <td style=\"padding:8px;\">Metodo di pagamento</td>
+                  <td style=\"padding:8px;\">TWINT</td>
+                </tr>
+                <tr>
+                  <td style=\"padding:8px;\">Numero TWINT</td>
+                  <td style=\"padding:8px;\"><strong>{twint_phone}</strong></td>
+                </tr>
+              </table>
+              <p style=\"margin:16px 0 0 0;\">Per favore effettua il pagamento tramite TWINT al numero indicato. Dopo il pagamento, riceverai conferma.</p>
+              <p style=\"margin:8px 0 0 0; color:#6b7280; font-size:12px;\">Se hai domande, rispondi a questa email.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style=\"padding:16px; text-align:center; color:#6b7280; font-size:12px; border-top:1px solid #eee;\">
+              © {datetime.utcnow().year} Gruppo Cagnavin
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
+    text = f"Fattura gita {destination or ''} - Importo {amount_str} CHF. Paga via TWINT al numero {twint_phone}."
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = smtp_user
+    msg['To'] = to_email
+    msg.attach(MIMEText(text, 'plain'))
+    msg.attach(MIMEText(html, 'html'))
+
+    with smtplib.SMTP(smtp_host, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(smtp_user, [to_email], msg.as_string())
+
+@app.route('/payment/<int:trip_id>/<int:user_id>')
+def payment_page(trip_id: int, user_id: int):
+    # Mostra QR TWINT se configurato; altrimenti placeholder
+    qr_url = os.environ.get('TWINT_QR_URL')  # es. link immagine online
+    if not qr_url:
+        # prova a servire un file statico se presente
+        qr_url = url_for('static', filename='images/twint_qr.png')
+    trip_name = ''
+    try:
+        t = supabase.table('trips').select('destinazione, quota').eq('id', trip_id).execute()
+        if t.data:
+            trip_name = t.data[0].get('destinazione', '')
+            amount = t.data[0].get('quota', 0)
+        else:
+            amount = 0
+    except Exception:
+        amount = 0
+    return render_template('payment.html', qr_url=qr_url, trip_name=trip_name, amount=amount)
 
 @app.route('/api/requests/<int:request_id>/reject', methods=['POST'])
 @admin_required

@@ -53,7 +53,11 @@
                 <div class="trip-actions">
                     <button class="btn-details" onclick="showTripDetails({{ trip.id }})">Dettagli</button>
                     {% if user and not is_admin and trip.is_future %}
+                    {% if trip.can_request %}
                     <button class="btn-request" onclick="requestJoin({{ trip.id }})">Richiedi partecipazione</button>
+                    {% else %}
+                    <button class="btn-request" disabled title="Hai già richiesto o sei iscritto">Richiesta inviata / Già iscritto</button>
+                    {% endif %}
                     {% endif %}
                     {% if is_admin %}
                     <button class="btn-participants" onclick="showParticipants({{ trip.id }})">Partecipanti</button>
