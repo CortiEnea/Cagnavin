@@ -7,13 +7,17 @@
     <h1 class="trip-title">Gite</h1>
     
     <div class="trip-container">
-        <div class="tabs">
-            <button class="tab-button {% if filter_type == 'all' %}active{% endif %}" onclick="filterTrips('all')">Tutte</button>
-            <button class="tab-button {% if filter_type == 'future' %}active{% endif %}" onclick="filterTrips('future')">Future</button>
-            <button class="tab-button {% if filter_type == 'past' %}active{% endif %}" onclick="filterTrips('past')">Passate</button>
+        <div class="tabs" style="position:sticky; top:64px; z-index:5; background:#fff; padding:8px; border-radius:8px; display:flex; align-items:center; gap:8px;">
+            <button class="tab-button {% if filter_type == 'all' %}active{% endif %}" onclick="setFilter('all')">Tutte</button>
+            <button class="tab-button {% if filter_type == 'future' %}active{% endif %}" onclick="setFilter('future')">Future</button>
+            <button class="tab-button {% if filter_type == 'past' %}active{% endif %}" onclick="setFilter('past')">Passate</button>
             {% if is_admin %}
-            <button class="tab-button {% if filter_type == 'drafts' %}active{% endif %}" onclick="filterTrips('drafts')">Bozze</button>
+            <button class="tab-button {% if filter_type == 'drafts' %}active{% endif %}" onclick="setFilter('drafts')">Bozze</button>
             {% endif %}
+            <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+              <input id="q" value="{{ q or '' }}" placeholder="Cerca destinazione" class="newsletter-input" style="max-width:220px;" />
+              <button class="btn-details" onclick="applySearch()">Cerca</button>
+            </div>
         </div>
         
         {% if filter_type == 'drafts' and is_admin %}
@@ -48,6 +52,12 @@
                     <p><strong>Data:</strong> {{ trip.data_display }}</p>
                     <p><strong>Luogo:</strong> {{ trip.descrizione or 'N/A' }}</p>
                     <p><strong>Partecipanti:</strong> {{ trip.n_partecipanti or 0 }}/{{ trip.n_max_partecipanti }}</p>
+                    <div style="background:#eee; border-radius:6px; height:8px; overflow:hidden; margin:6px 0;">
+                      {% set maxp = trip.n_max_partecipanti or 0 %}
+                      {% set curp = trip.n_partecipanti or 0 %}
+                      {% set pct = (curp * 100 // maxp) if maxp else 0 %}
+                      <div style="height:100%; width: {{ pct }}%; background: {% if pct<60 %}#10b981{% elif pct<90 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
+                    </div>
                     <p><strong>Quota:</strong> {{ trip.quota }} CHF</p>
                 </div>
                 <div class="trip-actions">
@@ -64,11 +74,21 @@
                     <button class="btn-delete" onclick="deleteTrip({{ trip.id }})">Elimina</button>
                     {% endif %}
                 </div>
+                <div style="display:flex; gap:8px; padding:0 1rem 1rem 1rem;">
+                  <a href="/api/trips/{{ trip.id }}/ics" class="btn-details" style="text-decoration:none;">Aggiungi al calendario</a>
+                  <button class="btn-details" onclick="shareTrip({{ trip.id }})">Condividi</button>
+                  <a class="btn-details" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query={{ trip.destinazione | urlencode }}">Apri su Maps</a>
+                </div>
             </div>
             {% else %}
             <p>Nessuna gita disponibile</p>
             {% endfor %}
         </div>
+        {% if has_more %}
+        <div style="text-align:center; margin-top:16px;">
+          <a class="newsletter-button" href="{{ url_for('trip', filter=filter_type, q=q, page=page+1, page_size=page_size) }}">Carica altri</a>
+        </div>
+        {% endif %}
         {% endif %}
     </div>
     
@@ -103,8 +123,16 @@
 </div>
 
 <script>
-function filterTrips(filter) {
-    window.location.href = `/trip?filter=${filter}`;
+function setFilter(filter) {
+    const q = document.getElementById('q')?.value || '';
+    const params = new URLSearchParams({ filter, q, page: '1' });
+    window.location.href = `/trip?${params.toString()}`;
+}
+
+function applySearch() {
+    const q = document.getElementById('q')?.value || '';
+    const params = new URLSearchParams({ filter: '{{ filter_type }}', q, page: '1' });
+    window.location.href = `/trip?${params.toString()}`;
 }
 
 async function showTripDetails(tripId) {
@@ -128,6 +156,15 @@ async function showTripDetails(tripId) {
         console.error('Error:', error);
         alert('Errore nel caricamento dei dettagli');
     }
+}
+
+function shareTrip(tripId) {
+    const link = `${location.origin}/api/trips/${tripId}`;
+    navigator.clipboard?.writeText(link).then(() => {
+        alert('Link copiato!');
+    }).catch(() => {
+        prompt('Copia questo link:', link);
+    });
 }
 
 function closeTripDetails() {

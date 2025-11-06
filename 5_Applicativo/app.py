@@ -190,6 +190,15 @@ def logout():
 @app.route('/trip')
 def trip():
     filter_type = request.args.get('filter', 'all')
+    query = (request.args.get('q') or '').strip()
+    try:
+        page = int(request.args.get('page', '1'))
+    except Exception:
+        page = 1
+    try:
+        page_size = int(request.args.get('page_size', '12'))
+    except Exception:
+        page_size = 12
     user = session.get('username')
     is_admin = user == 'Admin'
 
@@ -235,19 +244,33 @@ def trip():
         elif filter_type == 'past':
             trips = [t for t in trips if t.get('data_iso') and datetime.fromisoformat(t['data_iso']).date() < today]
 
+        # Ricerca per destinazione
+        if query:
+            qlow = query.lower()
+            trips = [t for t in trips if (t.get('destinazione') or '').lower().find(qlow) != -1]
+
+        # Paginazione
+        total = len(trips)
+        start = max((page - 1) * page_size, 0)
+        end = start + page_size
+        has_more = end < total
+        trips = trips[start:end]
+
         proposals = []
         if is_admin:
             proposals_result = supabase.table('proposals').select('*').execute()
             proposals = proposals_result.data if proposals_result.data else []
 
         return render_template('trip.html', trips=trips, proposals=proposals,
-                               filter_type=filter_type, user=user, is_admin=is_admin)
+                               filter_type=filter_type, user=user, is_admin=is_admin,
+                               q=query, page=page, page_size=page_size, has_more=has_more)
     except Exception as e:
         print(f"Errore carica gite: {e}")
         import traceback
         traceback.print_exc()
         return render_template('trip.html', trips=[], proposals=[],
-                               filter_type=filter_type, user=user, is_admin=is_admin)
+                               filter_type=filter_type, user=user, is_admin=is_admin,
+                               q=query, page=page, page_size=page_size, has_more=False)
 
 @app.route('/add-trip', methods=['GET', 'POST'])
 @admin_required
@@ -347,6 +370,37 @@ def api_trip_detail(trip_id):
         if result.data:
             return jsonify(result.data[0])
         return jsonify({'error': 'Gita non trovata'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/trips/<int:trip_id>/ics', methods=['GET'])
+def api_trip_ics(trip_id: int):
+    try:
+        result = supabase.table('trips').select('*').eq('id', trip_id).execute()
+        if not result.data:
+            return jsonify({'error': 'Gita non trovata'}), 404
+        t = result.data[0]
+        d = t.get('data')
+        if isinstance(d, str):
+            d = datetime.fromisoformat(d).date()
+        if not d:
+            return jsonify({'error': 'Data non valida'}), 400
+        formatter = '%Y%m%d'
+        ics = (
+            'BEGIN:VCALENDAR\r\n'
+            'VERSION:2.0\r\n'
+            'PRODID:-//Cagnavin//Trip//IT\r\n'
+            'CALSCALE:GREGORIAN\r\n'
+            'BEGIN:VEVENT\r\n'
+            f'UID:{trip_id}@cagnavin\r\n'
+            f'SUMMARY:{(t.get("destinazione") or "Gita")}\r\n'
+            f'DTSTART;VALUE=DATE:{d.strftime(formatter)}\r\n'
+            f'DTEND;VALUE=DATE:{(d).strftime(formatter)}\r\n'
+            f'DESCRIPTION:{(t.get("descrizione") or "").replace("\n"," ")}\r\n'
+            'END:VEVENT\r\n'
+            'END:VCALENDAR'
+        )
+        return ics, 200, {'Content-Type': 'text/calendar; charset=utf-8'}
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
