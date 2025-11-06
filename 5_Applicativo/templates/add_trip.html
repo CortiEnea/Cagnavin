@@ -14,32 +14,32 @@
         <form method="POST" action="/add-trip" enctype="multipart/form-data" class="add-trip-form">
             <div class="form-grid">
                 <div class="form-column">
-                    <input type="text" name="destinazione" placeholder="Destinazione" class="custom-field" required>
-                    <input type="date" name="data" class="custom-field" required>
+                    <input type="text" name="destinazione" placeholder="Destinazione" class="custom-field" required aria-label="Destinazione">
+                    <input type="date" name="data" class="custom-field" required aria-label="Data">
                     
                     <div class="participants-fields">
-                        <input type="number" name="n_min_partecipanti" placeholder="Partecipanti Min" class="custom-field" min="0" required>
-                        <input type="number" name="n_max_partecipanti" placeholder="Partecipanti Max" class="custom-field" min="1" required>
+                        <input type="number" name="n_min_partecipanti" placeholder="Partecipanti Min" class="custom-field" min="0" required aria-label="Partecipanti Min">
+                        <input type="number" name="n_max_partecipanti" placeholder="Partecipanti Max" class="custom-field" min="1" required aria-label="Partecipanti Max">
                     </div>
                     
-                    <input type="number" name="quota" placeholder="Prezzo (CHF)" class="custom-field" step="0.01" min="0" required>
-                    <textarea name="descrizione" placeholder="Descrizione" class="custom-field" rows="5"></textarea>
+                    <input type="number" name="quota" placeholder="Prezzo (CHF)" class="custom-field" step="0.01" min="0" required aria-label="Prezzo">
+                    <textarea name="descrizione" placeholder="Descrizione" class="custom-field" rows="5" aria-label="Descrizione"></textarea>
                     
                     <label class="checkbox-label">
-                        <input type="checkbox" id="lunchIncluded" onchange="toggleLunchField()">
+                        <input type="checkbox" id="lunchIncluded" onchange="toggleLunchField()" aria-label="Pranzo incluso">
                         <span>Pranzo incluso?</span>
                     </label>
                     
-                    <input type="text" name="pranzo" id="lunchField" placeholder="Pranzo" class="custom-field" style="display: none;">
+                    <input type="text" name="pranzo" id="lunchField" placeholder="Pranzo" class="custom-field" style="display: none;" aria-label="Pranzo">
                 </div>
                 
                 <div class="form-column">
                     <div class="upload-container">
-                        <label for="image" class="upload-label">
+                        <label for="image" class="upload-label" title="Carica immagine">
                             <span>Carica immagine</span>
-                            <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(this)">
+                            <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(this)" aria-label="Carica immagine">
                         </label>
-                        <img id="imagePreview" class="preview-image" style="display: none;">
+                        <img id="imagePreview" class="preview-image" style="display: none;" alt="Anteprima immagine">
                     </div>
                     
                     <button type="submit" class="create-button">Crea</button>
@@ -48,6 +48,77 @@
         </form>
     </div>
 </div>
+
+<!-- CSS responsive locale -->
+<style>
+/* layout base */
+.add-trip-container { max-width: 1100px; margin: 24px auto; padding: 16px; box-sizing: border-box; }
+.add-trip-title { font-size: 1.6rem; margin-bottom: 12px; text-align: center; }
+.error-message { background:#fee2e2; color:#991b1b; padding:8px; border-radius:6px; margin-bottom:12px; }
+
+/* form grid: 2 colonne su desktop, 1 su mobile */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* colonne e campi */
+.form-column { display: flex; flex-direction: column; gap: 10px; }
+.custom-field {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+  font-size: 1rem;
+  background: #fff;
+}
+
+/* participants inputs affiancati su desktop, stacked su mobile */
+.participants-fields { display: flex; gap: 10px; }
+.participants-fields .custom-field { flex: 1; min-width: 0; }
+
+/* upload box */
+.upload-container { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; padding:12px; border:1px dashed #e5e7eb; border-radius:8px; background:#fafafa; }
+.upload-label { cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:6px; background:#fff; border:1px solid #e6e6e6; }
+.preview-image { max-width: 100%; height: auto; border-radius:8px; object-fit:cover; }
+
+/* submit button */
+.create-button {
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: #4a0e2c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+}
+
+/* checkbox label */
+.checkbox-label { display:flex; align-items:center; gap:8px; cursor:pointer; }
+
+/* small screens adjustments */
+@media (max-width: 900px) {
+  .form-grid { grid-template-columns: 1fr; padding: 0 8px; }
+  .upload-container { width: 100%; }
+  .participants-fields { flex-direction: column; }
+  .create-button { width: 100%; }
+}
+
+/* very small screens */
+@media (max-width: 420px) {
+  .add-trip-container { padding: 12px; }
+  .add-trip-title { font-size: 1.3rem; }
+  .custom-field { font-size: 0.95rem; padding: 9px; }
+}
+
+/* accessibility focus */
+.custom-field:focus, .create-button:focus, .upload-label:focus { outline: 3px solid rgba(74,14,44,0.12); outline-offset: 2px; }
+</style>
 
 <script>
 function toggleLunchField() {
@@ -65,6 +136,8 @@ function previewImage(input) {
             preview.style.display = 'block';
         };
         reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
     }
 }
 </script>
