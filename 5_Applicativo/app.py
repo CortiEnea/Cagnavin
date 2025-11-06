@@ -13,21 +13,25 @@ from io import BytesIO
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 
-# --- Nuova/Modificata configurazione per cookie e CORS ---
-# Origine frontend (da impostare in environment), fallback a localhost
+# --- Modifiche: cookie path/domain/httpOnly per ridurre perdita sessione ---
 FRONTEND_ORIGIN = os.environ.get('FRONTEND_ORIGIN', 'http://localhost:3000')
 
-# Se l'app è in produzione, abilita cookie sicuri; altrimenti disabilita Secure per testing locale
 FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
 USE_SECURE_COOKIES = FLASK_ENV == 'production' or os.environ.get('SESSION_COOKIE_SECURE') == '1'
 
-# Impostazioni cookie sessione (utile se frontend e backend sono su origini diverse)
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'   # consente cookie cross-site quando necessario
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = bool(USE_SECURE_COOKIES)
+
+# Garantisce che il cookie sia valido su tutto il sito e non accessibile via JS
+app.config['SESSION_COOKIE_PATH'] = '/'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+# DOMAIN opzionale: impostalo in env se vuoi un dominio specifico (es. '.cagnavin.it')
+app.config['SESSION_COOKIE_DOMAIN'] = os.environ.get('SESSION_COOKIE_DOMAIN') or None
+# --- Fine modifiche cookie ---
 
 # Abilita CORS con supporto a credentials; specifica l'origine consentita (non usare '*')
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": FRONTEND_ORIGIN}})
-# --- Fine modifiche configurazione ---
 
 # Configurazione Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
@@ -503,6 +507,29 @@ def internal_error(error):
 @app.errorhandler(404)
 def not_found(error):
     return render_template('error.html', error="Pagina non trovata"), 404
+
+# --- Nuova funzione: corregge host comuni con typo e reindirizza mantenendo path/query ---
+COMMON_HOST_FIXES = {
+    'cagnaivn': 'cagnavin',  # typo osservato: "cagnaivn" -> "cagnavin"
+    # aggiungi altre varianti se necessario
+}
+
+@app.before_request
+def normalize_host():
+    host_port = request.host  # può essere 'host:port'
+    host = host_port.split(':')[0]
+    # conserva la porta se presente
+    port = ''
+    if ':' in host_port:
+        parts = host_port.split(':', 1)
+        port = ':' + parts[1]
+    for bad, good in COMMON_HOST_FIXES.items():
+        if host == bad or host.startswith(bad + '.'):
+            corrected_host = good + port
+            corrected_url = request.url.replace(request.host, corrected_host, 1)
+            print(f"🔧 Host corretto: {host_port} -> {corrected_host}. Redirect a {corrected_url}")
+            return redirect(corrected_url, code=302)
+# --- Fine normalize_host ---
 
 if __name__ == '__main__':
     print("=" * 50)
