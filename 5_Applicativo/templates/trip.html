@@ -30,7 +30,7 @@
                     <button class="btn-reject" onclick="rejectProposal({{ proposal.id }})">Rifiuta</button>
                 </div>
             </div>
-            {% empty %}
+            {% else %}
             <p>Nessuna proposta in sospeso</p>
             {% endfor %}
         </div>
@@ -61,7 +61,7 @@
                     {% endif %}
                 </div>
             </div>
-            {% empty %}
+            {% else %}
             <p>Nessuna gita disponibile</p>
             {% endfor %}
         </div>
