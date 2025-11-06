@@ -30,8 +30,8 @@
             Ogni anno si organizzano due uscite: una in primavera e una in autunno. Le destinazioni principali sono Piemonte, Trentino, Aosta e Lombardia, ma ogni anno si esplorano anche nuove località.
         </p>
     </div>
-    <div class="section-image-container">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="responsive-image">
+    <div class="section-image-container" style="display:flex; justify-content:center;">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo Cagnavin" class="responsive-image" style="width:28%; min-width:180px; max-width:260px; height:auto;">
     </div>
   </div>
 </section>
@@ -39,13 +39,13 @@
 <!-- Sezione: Vai alle Gite -->
 <section class="history-section">
   <div class="responsive-section" style="max-width: 1200px; margin: 0 auto;">
-    <div class="section-image-container">
-        <img src="{{ url_for('static', filename='images/vino.jpg') }}" alt="Vino" class="section-image">
+    <div class="section-content" style="order:2;">
+        <h2 class="section-title-white" style="margin-bottom:12px;">Rivivi tutte le esperienze</h2>
+        <p class="section-description-white" style="margin-bottom:16px;">Riguarda tutte le gite del gruppo Cagnavin grazie allo storico.</p>
+        <a href="{{ url_for('trip') }}" class="newsletter-button" aria-label="Vai alle gite" style="display:inline-block;">Visualizza gite</a>
     </div>
-    <div class="section-content">
-        <h2 class="section-title-white">Rivivi tutte le esperienze</h2>
-        <p class="section-description-white">Riguarda tutte le gite del gruppo Cagnavin grazie allo storico.</p>
-        <a href="{{ url_for('trip') }}" class="newsletter-button" aria-label="Vai alle gite">Visualizza gite</a>
+    <div class="section-image-container" style="order:1; display:flex; justify-content:center;">
+        <img src="{{ url_for('static', filename='images/vino.jpg') }}" alt="Vino" class="section-image" style="width:28%; min-width:220px; max-width:360px; height:auto;">
     </div>
   </div>
 </section>
@@ -59,8 +59,8 @@
         <p class="section-description">Usa il form alla seguente pagina per fare una proposta!</p>
         <button class="newsletter-button" onclick="openProposalDialog()">Proponi</button>
     </div>
-    <div class="section-image-container">
-        <img src="{{ url_for('static', filename='images/a.jpg') }}" alt="Vino" class="section-image">
+    <div class="section-image-container" style="display:flex; justify-content:center;">
+        <img src="{{ url_for('static', filename='images/a.jpg') }}" alt="Calice di vino" class="section-image" style="width:28%; min-width:220px; max-width:360px; height:auto;">
     </div>
   </div>
 </section>
