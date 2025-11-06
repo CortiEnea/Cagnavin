@@ -13,25 +13,26 @@ from io import BytesIO
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 
-# --- Modifiche: cookie path/domain/httpOnly per ridurre perdita sessione ---
-FRONTEND_ORIGIN = os.environ.get('FRONTEND_ORIGIN', 'http://localhost:3000')
+# --- Modifica: richiedi FRONTEND_ORIGIN esplicito (no fallback a localhost) ---
+FRONTEND_ORIGIN = os.environ.get('FRONTEND_ORIGIN')  # deve essere impostato in produzione (es. https://cagnavin.vercel.app)
 
 FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
 USE_SECURE_COOKIES = FLASK_ENV == 'production' or os.environ.get('SESSION_COOKIE_SECURE') == '1'
 
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = bool(USE_SECURE_COOKIES)
-
-# Garantisce che il cookie sia valido su tutto il sito e non accessibile via JS
 app.config['SESSION_COOKIE_PATH'] = '/'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-
-# DOMAIN opzionale: impostalo in env se vuoi un dominio specifico (es. '.cagnavin.it')
 app.config['SESSION_COOKIE_DOMAIN'] = os.environ.get('SESSION_COOKIE_DOMAIN') or None
-# --- Fine modifiche cookie ---
 
-# Abilita CORS con supporto a credentials; specifica l'origine consentita (non usare '*')
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": FRONTEND_ORIGIN}})
+if FRONTEND_ORIGIN:
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": FRONTEND_ORIGIN}})
+    print(f"✅ CORS origine frontend impostata: {FRONTEND_ORIGIN}")
+else:
+    # Non impostare un fallback permissivo: logga e abilita CORS in modo non-privilegiato
+    CORS(app)  # evita di rispondere con Access-Control-Allow-Origin errato in produzione
+    print("❌ FRONTEND_ORIGIN non impostato. In produzione imposta FRONTEND_ORIGIN=https://cagnavin.vercel.app")
+# --- Fine modifica ---
 
 # Configurazione Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
