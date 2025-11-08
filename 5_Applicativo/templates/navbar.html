@@ -1,20 +1,26 @@
 <nav class="navbar" id="navbar">
+    {# Normalizza 'user' in 'username' (se user è oggetto con .username lo usa, altrimenti usa user stesso) #}
+    {% if user and (user.username is defined) %}
+        {% set username = user.username %}
+    {% else %}
+        {% set username = user %}
+    {% endif %}
     <div class="navbar-container">
         <h1 class="navbar-title"><a href="/">Gruppo Cagnavin</a></h1>
         
         <div class="navbar-links" id="navbarLinks">
-            {% if user %}
-                {% if user == 'Admin' %}
+            {% if username %}
+                {% if username == 'Admin' %}
                     <a href="/" class="nav-link">Home</a>
                     <a href="/trip" class="nav-link">Gite</a>
                     <a href="/add-trip" class="nav-link">Aggiungi gita</a>
                     <a href="/request" class="nav-link">Richieste</a>
                     <a href="/users" class="nav-link">Utenti</a>
-                    <a href="/profile" class="nav-link">{{ user }}</a>
+                    <a href="/profile" class="nav-link">{{ username }}</a>
                 {% else %}
                     <a href="/" class="nav-link">Home</a>
                     <a href="/trip" class="nav-link">Gite</a>
-                    <a href="/profile" class="nav-link">{{ user }}</a>
+                    <a href="/profile" class="nav-link">{{ username }}</a>
                 {% endif %}
             {% else %}
                 <a href="/" class="nav-link">Home</a>
@@ -31,18 +37,18 @@
     </div>
     
     <div class="mobile-menu" id="mobileMenu">
-        {% if user %}
-            {% if user == 'Admin' %}
+        {% if username %}
+            {% if username == 'Admin' %}
                 <a href="/" class="mobile-nav-link">Home</a>
                 <a href="/trip" class="mobile-nav-link">Gite</a>
                 <a href="/add-trip" class="mobile-nav-link">Aggiungi gita</a>
                 <a href="/request" class="mobile-nav-link">Richieste</a>
                 <a href="/users" class="mobile-nav-link">Utenti</a>
-                <a href="/profile" class="mobile-nav-link">{{ user }}</a>
+                <a href="/profile" class="mobile-nav-link">{{ username }}</a>
             {% else %}
                 <a href="/" class="mobile-nav-link">Home</a>
                 <a href="/trip" class="mobile-nav-link">Gite</a>
-                <a href="/profile" class="mobile-nav-link">{{ user }}</a>
+                <a href="/profile" class="mobile-nav-link">{{ username }}</a>
             {% endif %}
         {% else %}
             <a href="/" class="mobile-nav-link">Home</a>
