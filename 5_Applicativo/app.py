@@ -629,18 +629,37 @@ def api_update_user(user_id):
         return jsonify({'error': 'Non autorizzato'}), 403
     
     try:
-        data = request.json
+        # Supporta sia JSON che form-data (multipart)
+        if request.content_type and request.content_type.startswith('multipart/form-data'):
+            data = request.form.to_dict()
+        else:
+            data = request.json or {}
         update_data = {}
         
-        if 'email' in data:
+        # Email
+        if 'email' in data and data.get('email'):
             update_data['email'] = data['email']
-        if 'password' in data and data.get('old_password'):
+        
+        # Password change
+        if data.get('password') and data.get('old_password'):
             # Verifica vecchia password
             user_result = supabase.table('users').select('password').eq('id', user_id).execute()
             if user_result.data and check_password_hash(user_result.data[0]['password'], data['old_password']):
                 update_data['password'] = generate_password_hash(data['password'])
             else:
                 return jsonify({'error': 'Password attuale non corretta'}), 400
+        
+        # Profile picture (file upload)
+        if 'profilePicture' in request.files:
+            file = request.files['profilePicture']
+            if file and allowed_file(file.filename):
+                raw = file.read()
+                # salva come base64 nel campo profile_picture
+                b64 = base64.b64encode(raw).decode('utf-8')
+                update_data['profile_picture'] = b64
+            else:
+                # File non valido -> ignora o ritornare errore
+                return jsonify({'error': 'Immagine non valida'}), 400
         
         if update_data:
             supabase.table('users').update(update_data).eq('id', user_id).execute()
